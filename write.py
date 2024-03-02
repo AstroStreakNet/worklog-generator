@@ -31,12 +31,13 @@ def generate(name, sID, week, c_tasks, n_tasks, summary):
         f"{sID}_week-{week}.pdf", 
         pagesize=A4, 
         rightMargin=inch/2, 
-        leftMargin=inch/2
+        leftMargin=inch/2,
+        topMargin=0
     )
 
     elements = []
     spacer = Spacer(1, 0.3 * inch)
-    spacer_small = Spacer(1, 0.2 * inch)
+    spacer_small = Spacer(1, 0.1 * inch)
     light_red = colors.HexColor('#ff7f7f') 
     
     c_tasks.insert(0, ["TASKS", "STATUS", "TIME SPENT", "ACTION ITEM/NOTE"])
@@ -67,19 +68,24 @@ def generate(name, sID, week, c_tasks, n_tasks, summary):
     title_text1 = "EAT40005 Engineering Technology Project A"
     title_text2 = "Individual Work Log"
     title_text3 = f"Week {week}"
-    title  = Paragraph(title_text1, style=title_style)
+    title1  = Paragraph(title_text1, style=title_style)
     title2 = Paragraph(title_text2, style=title_head_style)
     title3 = Paragraph(title_text3, style=title_style)
 
-    # Add title image and paragraphs to elements list
-    elements.append(image)
-    elements.append(spacer)  
-    elements.append(title)
-    elements.append(spacer_small)
-    elements.append(title2)
-    elements.append(spacer) 
-    elements.append(title3)
-    elements.append(spacer) 
+    title_table = Table([[title1],[spacer_small],[title2],[spacer],[title3]])
+
+    # Constructing the title table with image and paragraphs
+    header_table = Table(
+        [[Image("swin-logo.png", width=60, height=120), title_table]],
+        colWidths=[50, '*']
+    )
+
+    header_table.setStyle(TableStyle(
+        [('VALIGN', (0, 0), (0, 0), 'TOP')])
+    )
+
+    elements.append(header_table)
+    elements.append(spacer)
 
     ###
     ### User Information
@@ -181,5 +187,5 @@ def generate(name, sID, week, c_tasks, n_tasks, summary):
     # Build the document with all elements
     doc.build(elements)
 
-    print("pdf generated")
+    print("\n\n\033[31mpdf generated")
 
