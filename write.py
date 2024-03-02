@@ -13,12 +13,39 @@ from reportlab.platypus import (
     TableStyle
 )
 
-def generate(name, studentID, week, current_entries, next_entries, summary_content):
-    doc = SimpleDocTemplate(f"{studentID}_week-{week}.pdf", pagesize=A4, rightMargin=inch/2, leftMargin=inch/2)
+def calculate_total_time(data):
+    total_minutes = 0
 
-    # Document Title
+    for entry in data:
+        if len(entry) > 2:
+            time_str = entry[2]
+            hours, minutes = map(int, time_str.split(":"))
+            total_minutes += hours * 60 + minutes
+
+    total_hours, remaining_minutes = divmod(total_minutes, 60)
+    total_time = "{:02d}:{:02d}".format(total_hours, remaining_minutes)
+    return total_time
+
+def generate(name, sID, week, c_tasks, n_tasks, summary):
+    doc = SimpleDocTemplate(
+        f"{sID}_week-{week}.pdf", 
+        pagesize=A4, 
+        rightMargin=inch/2, 
+        leftMargin=inch/2
+    )
+
+    elements = []
+    spacer = Spacer(1, 0.3 * inch)
+    spacer_small = Spacer(1, 0.2 * inch)
+    light_red = colors.HexColor('#ff7f7f') 
+    
+    c_tasks.insert(0, ["TASKS", "STATUS", "TIME SPENT", "ACTION ITEM/NOTE"])
+    n_tasks.insert(0, ["TASKS PLANNED FOR NEXT WEEK", "EXPECTED\nCOMPLETION"])
+
+    ###
+    ### Document Title
     swinny_icon = "swin-logo.png"
-    image = Image(swinny_icon, width=100, height=200)
+    image = Image(swinny_icon, width=50, height=100)
     image.hAlign = 'LEFT'
 
     title_style = ParagraphStyle(
@@ -26,88 +53,133 @@ def generate(name, studentID, week, current_entries, next_entries, summary_conte
         fontName='Helvetica-Bold', 
         fontSize=16, 
         textColor=colors.black,
-        leftIndent=110  # Adjust the left indent to align text with image
+        alignment=2
+    )
+    
+    title_head_style = ParagraphStyle(
+        name='Title Head',
+        fontName='Helvetica-Bold', 
+        fontSize=22, 
+        textColor=colors.black,
+        alignment=2 
     )
 
     title_text1 = "EAT40005 Engineering Technology Project A"
     title_text2 = "Individual Work Log"
-    title_text3 = f"\nWeek {week}"
-    title = Paragraph(title_text1, style=title_style)
-    title2 = Paragraph(title_text2, style=title_style)
+    title_text3 = f"Week {week}"
+    title  = Paragraph(title_text1, style=title_style)
+    title2 = Paragraph(title_text2, style=title_head_style)
     title3 = Paragraph(title_text3, style=title_style)
 
-    # Spacer for separation
-    spacer = Spacer(1, 0.5 * inch)
+    # Add title image and paragraphs to elements list
+    elements.append(image)
+    elements.append(spacer)  
+    elements.append(title)
+    elements.append(spacer_small)
+    elements.append(title2)
+    elements.append(spacer) 
+    elements.append(title3)
+    elements.append(spacer) 
 
-    # Worklog Table
-    worklog_table = Table(current_entries, colWidths=(doc.width - inch) / len(current_entries[0]))  # Adjust the width
-    worklog_style = TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+    ###
+    ### User Information
+    identification = [
+        ["PROJECT NAME:", "47. Send us your (satellite) streaks"],
+        ["STUDENT NAME:", name],
+        ["STUDENT ID:", sID]
+    ]
+
+    identification_table = Table(identification, colWidths=[100, 413])
+    identification_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTNAME', (1, 0), (-1, -1), 'Helvetica'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
+        ('TOPPADDING', (0, 0), (-1, -1), 7),
+        ('BACKGROUND', (0, 0), (0, -1), light_red),
         ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ])
+    identification_table.setStyle(identification_style)
+    elements.append(identification_table)
+    elements.append(spacer)
+
+
+    ###
+    ### Worklog Table
+    worklog_table = Table(c_tasks, colWidths=[243, 70, 70, 130])
+    worklog_style = TableStyle([
+        ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+        ('ALIGN', (1, 0), (-2, -1), 'CENTER'), 
+        ('ALIGN', (-1, 0), (-1, -1), 'LEFT'), 
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('BACKGROUND', (0, 0), (-1, 0), light_red),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
     ])
     worklog_table.setStyle(worklog_style)
+    elements.append(worklog_table)
+    elements.append(spacer_small)
 
-    # Coming Week Plan Table
-    next_week_table = Table(next_entries, colWidths=(doc.width - inch) / len(next_entries[0]))  # Adjust the width
+    ###
+    ### Total Hours
+    total_time = calculate_total_time(c_tasks[1:])
+    time_style = ParagraphStyle(
+        name='hours', 
+        fontName='Helvetica-Bold', 
+        fontSize=13, 
+        textColor=colors.black,
+        alignment=2
+    )
+    time_text = f"Total Time: {total_time}"
+    time_para = Paragraph(time_text, style=time_style)
+    elements.append(time_para)
+    elements.append(spacer)
+
+
+    ###
+    ### Tasks for next week 
+    next_week_table = Table(n_tasks, colWidths=[413, 100])
     next_week_style = TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+        ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('BACKGROUND', (0, 0), (-1, 0), light_red),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
     ])
     next_week_table.setStyle(next_week_style)
+    elements.append(next_week_table)
+    elements.append(spacer) 
 
-    # Summary
-    summary_head_style = ParagraphStyle(
+    ###
+    ### Summary
+    # Summary Heading
+    summary_hstyle = ParagraphStyle(
         name='Summary', 
         fontName='Helvetica-Bold', 
-        fontSize=18, 
+        fontSize=16, 
         textColor=colors.black
     )
-    summary_head_text = f"Summary/weekly reflection for Week {week}"
-    summary_head = Paragraph(summary_head_text, style=summary_head_style)
+    summary_htext = f"Summary/weekly reflection for Week {week}"
+    summary_head = Paragraph(summary_htext, style=summary_hstyle)
+    elements.append(summary_head)
+    elements.append(spacer)
 
-    summary_content_style = ParagraphStyle(
+    # Summary Text 
+    summary_tstyle = ParagraphStyle(
         name='SummaryContent', 
         fontName='Helvetica', 
         fontSize=12, 
-        textColor=colors.black
+        textColor=colors.black,
+        alignment=4
     )
-    summary_content = Paragraph(summary_content, style=summary_content_style)
+    summary_text = Paragraph(summary, style=summary_tstyle)
+    elements.append(summary_text)
 
-    # Content layout
-    content = [
-        image, title,
-        title2,
-        title3,
-        spacer,
-        worklog_table,
-        spacer,
-        next_week_table,
-        spacer,
-        summary_head,
-        summary_content
-    ]
+    # Build the document with all elements
+    doc.build(elements)
 
-    # Build the document
-    doc.build(content)
+    print("pdf generated")
 
-if __name__ == "__main__":
-    summary = "hello world"
-    c_entries = [
-        ["title", "status", "time", "note"],
-        ["title", "status", "time", "note"],
-        ["title", "status", "time", "note"]
-    ]
-    n_entries = [
-        ["title", "time"],
-        ["title", "time"],
-        ["title", "time"]
-    ]
-
-    generate("Snoop Monke", 12345678, 10, c_entries, n_entries, summary)
-    print("PDF created successfully")
