@@ -9,23 +9,16 @@ MAIN_PY="main.py"
 if [ ! -d "$VENV_DIR" ]; then
     echo "Creating virtual environment..."
     python3 -m venv "$VENV_DIR"
+    echo "Installing required pip packages..."
+    pip install -r "$REQUIREMENTS_FILE"
 fi
 
 # Activate virtual environment
 echo "Activating virtual environment..."
 source "$VENV_DIR/bin/activate"
 
-# Install required pip packages if not already installed
-if [ -f "$REQUIREMENTS_FILE" ]; then
-    echo "Installing required pip packages..."
-    pip install -r "$REQUIREMENTS_FILE"
-fi
-
-# Clear terminal before running the script
-clear	
-
 # Run main.py
-echo "Running main.py..."
+echo -e "Running main.py...\n"
 python "$MAIN_PY"
 
 # Deactivate virtual environment
