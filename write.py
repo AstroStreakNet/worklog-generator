@@ -195,5 +195,5 @@ def generate(name, sID, week, c_tasks, n_tasks, summary):
     ###
     ### Build the document with all elements
     doc.build(elements)
-    print("\n\n\033[31mpdf generated")
+    print(f"\n\"{sID}_week-{week}.pdf\" generated")
 
