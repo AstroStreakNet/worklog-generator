@@ -13,6 +13,7 @@ from reportlab.platypus import (
     TableStyle
 )
 
+# return total time for the entered current_week tasks' info 
 def calculate_total_time(data):
     total_minutes = 0
 
@@ -26,7 +27,9 @@ def calculate_total_time(data):
     total_time = "{:02d}:{:02d}".format(total_hours, remaining_minutes)
     return total_time
 
+# generate pdf 
 def generate(name, sID, week, c_tasks, n_tasks, summary):
+    # config document 
     doc = SimpleDocTemplate(
         f"{sID}_week-{week}.pdf", 
         pagesize=A4, 
@@ -35,13 +38,16 @@ def generate(name, sID, week, c_tasks, n_tasks, summary):
         topMargin=0
     )
 
+    # init variables
     elements = []
     spacer = Spacer(1, 0.3 * inch)
     spacer_small = Spacer(1, 0.1 * inch)
     light_red = colors.HexColor('#ff7f7f') 
     
+    # add heading to tasks table 
     c_tasks.insert(0, ["TASKS", "STATUS", "TIME SPENT", "ACTION ITEM/NOTE"])
     n_tasks.insert(0, ["TASKS PLANNED FOR NEXT WEEK", "EXPECTED\nCOMPLETION"])
+
 
     ###
     ### Document Title
@@ -74,18 +80,16 @@ def generate(name, sID, week, c_tasks, n_tasks, summary):
 
     title_table = Table([[title1],[spacer_small],[title2],[spacer],[title3]])
 
-    # Constructing the title table with image and paragraphs
+    # constructing the title table with image and paragraphs
     header_table = Table(
         [[Image("swin-logo.png", width=60, height=120), title_table]],
         colWidths=[50, '*']
     )
 
-    header_table.setStyle(TableStyle(
-        [('VALIGN', (0, 0), (0, 0), 'TOP')])
-    )
-
+    header_table.setStyle(TableStyle([('VALIGN', (0, 0), (0, 0), 'TOP')]))
     elements.append(header_table)
     elements.append(spacer)
+
 
     ###
     ### User Information
@@ -105,6 +109,7 @@ def generate(name, sID, week, c_tasks, n_tasks, summary):
         ('BACKGROUND', (0, 0), (0, -1), light_red),
         ('GRID', (0, 0), (-1, -1), 1, colors.black)
     ])
+
     identification_table.setStyle(identification_style)
     elements.append(identification_table)
     elements.append(spacer)
@@ -123,9 +128,11 @@ def generate(name, sID, week, c_tasks, n_tasks, summary):
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
     ])
+
     worklog_table.setStyle(worklog_style)
     elements.append(worklog_table)
     elements.append(spacer_small)
+
 
     ###
     ### Total Hours
@@ -159,6 +166,7 @@ def generate(name, sID, week, c_tasks, n_tasks, summary):
     elements.append(next_week_table)
     elements.append(spacer) 
 
+
     ###
     ### Summary
     # Summary Heading
@@ -184,8 +192,8 @@ def generate(name, sID, week, c_tasks, n_tasks, summary):
     summary_text = Paragraph(summary, style=summary_tstyle)
     elements.append(summary_text)
 
-    # Build the document with all elements
+    ###
+    ### Build the document with all elements
     doc.build(elements)
-
     print("\n\n\033[31mpdf generated")
 

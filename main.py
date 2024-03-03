@@ -5,7 +5,7 @@ import write
 name = "Utkarsh Ranjan"
 studentID = 102874485
 
-
+# break input text into multiple lines
 def wrap_input(prompt, limit):
     while len(prompt) < 11:
         prompt += ' '
@@ -31,6 +31,7 @@ def main():
 
     week = input("\033[36mWeek Number: \033[0m")
 
+    # get current week's progress information
     t_this_week = int(input("\n\033[35mNumber of Tasks: \033[0m"))
     for i in range(t_this_week):
         entry = []
@@ -42,7 +43,7 @@ def main():
 
         current_tasks.append(entry)
 
-
+    # get next week's progress information 
     t_next_week = int(input("\n\033[35mNumber of tasks for next week: \033[0m"))
     for i in range(t_next_week):
         entry = []
@@ -52,9 +53,12 @@ def main():
 
         next_tasks.append(entry)
 
-    summary = input("\033[35mSummary/Reflection:\033[0m\n")
+    # get summary for the week 
+    summary = input("\n\033[35mSummary/Reflection:\033[0m\n")
 
+    # generate pdf for the entered data
     write.generate(name, studentID, week, current_tasks, next_tasks, summary)
+
 
 if __name__ == "__main__":
     main()
