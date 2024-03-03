@@ -179,7 +179,7 @@ def generate(name, sID, week, c_tasks, n_tasks, summary):
     summary_htext = f"Summary/weekly reflection for Week {week}"
     summary_head = Paragraph(summary_htext, style=summary_hstyle)
     elements.append(summary_head)
-    elements.append(spacer)
+    elements.append(spacer_small)
 
     # Summary Text 
     summary_tstyle = ParagraphStyle(
