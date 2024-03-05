@@ -19,7 +19,13 @@ source "$VENV_DIR/bin/activate"
 
 # Run main.py
 echo -e "Running main.py...\n"
-python "$MAIN_PY"
+
+# Check if argument is provided
+if [ $# -gt 0 ]; then
+    python "$MAIN_PY" "$1"
+else
+    python "$MAIN_PY"
+fi
 
 # Deactivate virtual environment
 echo "Deactivating virtual environment..."
