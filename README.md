@@ -13,11 +13,27 @@ environment > install pip packages > run the script > close the environment`
 I've also written a bash script `run.sh` that does everything for you. So to run
 the program, just run this script.
 
-### Entering data at runtime 
-![runtime](/screenshots/runtime.png)
+<details>
+  <summary>Entering data at runtime </summary>
 
-### Passing in file 
-![file_input](/screenshots/file.png)
+  ![runtime](/screenshots/runtime.png)
+</details>
+
+<details>
+  <summary>Passing in file </summary>
+
+  ![runtime](/screenshots/file.png)
+</details>
+
+## Config:
+Name and StudentID can be changed in the first lines of `main.py` 
+
+<details>
+  <summary>Setting up Name and ID</summary>
+
+  ![runtime](/screenshots/config.png)
+</details>
+
 
 ## Syntax for .txt files: 
 ```
