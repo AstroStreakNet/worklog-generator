@@ -1,7 +1,7 @@
 # userinput
 
 # [tasks, status, time, notes, plans]
-LIMITS = [52, 15, 10, 28, 90]
+LIMITS = [52, 15, 10, 27, 90]
 
 DESCRIPTION = 52
 STATUS = 15
