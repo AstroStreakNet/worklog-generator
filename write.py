@@ -31,7 +31,7 @@ def calculate_total_time(data):
 def generate(name, sID, week, c_tasks, n_tasks, summary):
     # config document 
     doc = SimpleDocTemplate(
-        f"{sID}_week-{week}.pdf", 
+        f"export/{sID}_week-{week}.pdf", 
         pagesize=A4, 
         rightMargin=inch/2, 
         leftMargin=inch/2,
