@@ -1,6 +1,6 @@
+.gitignore
 export/
 txts/
 __pycache__/
 venv/
-
 
